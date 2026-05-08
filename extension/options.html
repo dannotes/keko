@@ -98,6 +98,26 @@
 
     #saveStatus { font-size: 12px; color: #b399ff; opacity: 0; transition: opacity 0.4s; }
     #saveStatus.show { opacity: 1; }
+
+    .time-row { display: flex; align-items: center; justify-content: space-between; }
+    .time-controls { display: flex; align-items: center; gap: 4px; }
+    select {
+      padding: 6px 8px;
+      border: 1px solid #143752;
+      border-radius: 6px;
+      background: #0f1e2b;
+      color: #e2e8eb;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    select:focus { border-color: #5746af; }
+    select::-webkit-scrollbar { width: 5px; }
+    select::-webkit-scrollbar-track { background: transparent; }
+    select::-webkit-scrollbar-thumb { background: #143752; border-radius: 4px; }
+    select::-webkit-scrollbar-thumb:hover { background: #5746af; }
+    .sep { font-weight: bold; font-size: 15px; color: #a3b5c2; }
   </style>
 </head>
 <body>
@@ -111,6 +131,40 @@
       <input type="text" id="kekaUrl" placeholder="eg: https://companyname.keka.com/#/me/attendance/logs" />
     </div>
     <div class="hint">Enter your company's Keka attendance URL. Required before automation will work.</div>
+  </div>
+
+  <div class="section">
+    <h2>Schedule</h2>
+    <div class="row">
+      <label>Clock-in Time</label>
+      <div class="time-row">
+        <div class="time-controls">
+          <select id="checkinHour"></select>
+          <span class="sep">:</span>
+          <select id="checkinMinute"></select>
+          <select id="checkinPeriod">
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
+        </div>
+        <div class="toggle" id="checkinToggle" style="margin-left:12px;"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <label>Clock-out Time</label>
+      <div class="time-row">
+        <div class="time-controls">
+          <select id="checkoutHour"></select>
+          <span class="sep">:</span>
+          <select id="checkoutMinute"></select>
+          <select id="checkoutPeriod">
+            <option value="AM">AM</option>
+            <option value="PM" selected>PM</option>
+          </select>
+        </div>
+        <div class="toggle" id="checkoutToggle" style="margin-left:12px;"></div>
+      </div>
+    </div>
   </div>
 
   <div class="section">

@@ -1,30 +1,93 @@
 class KeKoOptions {
   constructor() {
-    this.kekaUrlInput   = document.getElementById('kekaUrl');
-    this.weekdaysToggle = document.getElementById('weekdaysToggle');
-    this.holidaysArea   = document.getElementById('holidays');
-    this.logBox         = document.getElementById('logBox');
-    this.saveBtn        = document.getElementById('saveBtn');
-    this.saveStatus     = document.getElementById('saveStatus');
+    this.kekaUrlInput    = document.getElementById('kekaUrl');
+    this.weekdaysToggle  = document.getElementById('weekdaysToggle');
+    this.holidaysArea    = document.getElementById('holidays');
+    this.logBox          = document.getElementById('logBox');
+    this.saveBtn         = document.getElementById('saveBtn');
+    this.saveStatus      = document.getElementById('saveStatus');
+    this.checkinHour     = document.getElementById('checkinHour');
+    this.checkinMinute   = document.getElementById('checkinMinute');
+    this.checkinPeriod   = document.getElementById('checkinPeriod');
+    this.checkinToggle   = document.getElementById('checkinToggle');
+    this.checkoutHour    = document.getElementById('checkoutHour');
+    this.checkoutMinute  = document.getElementById('checkoutMinute');
+    this.checkoutPeriod  = document.getElementById('checkoutPeriod');
+    this.checkoutToggle  = document.getElementById('checkoutToggle');
 
+    this.populateTimeSelects();
     this.load();
     this.loadLogs();
     this.bindEvents();
   }
 
+  populateTimeSelects() {
+    for (let h = 1; h <= 12; h++) {
+      const val = String(h).padStart(2, '0');
+      [this.checkinHour, this.checkoutHour].forEach(sel => {
+        const o = document.createElement('option');
+        o.value = o.textContent = val;
+        sel.appendChild(o);
+      });
+    }
+    for (let m = 0; m < 60; m++) {
+      const val = String(m).padStart(2, '0');
+      [this.checkinMinute, this.checkoutMinute].forEach(sel => {
+        const o = document.createElement('option');
+        o.value = o.textContent = val;
+        sel.appendChild(o);
+      });
+    }
+  }
+
+  to12hr(time24) {
+    const [h, m] = time24.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return { hour: String(hour).padStart(2, '0'), minute: String(m).padStart(2, '0'), period };
+  }
+
+  to24hr(hour, minute, period) {
+    let h = parseInt(hour);
+    if (period === 'AM' && h === 12) h = 0;
+    if (period === 'PM' && h !== 12) h += 12;
+    return `${String(h).padStart(2, '0')}:${minute}`;
+  }
+
   async load() {
-    const s = await chrome.storage.sync.get(['kekaUrl', 'weekdaysOnly', 'holidays']);
+    const s = await chrome.storage.sync.get([
+      'kekaUrl', 'weekdaysOnly', 'holidays',
+      'checkinTime', 'checkoutTime', 'checkinEnabled', 'checkoutEnabled'
+    ]);
     this.kekaUrlInput.value = s.kekaUrl || '';
     if (s.weekdaysOnly !== false) this.weekdaysToggle.classList.add('active');
     this.holidaysArea.value = s.holidays || '';
+
+    const ci = this.to12hr(s.checkinTime || '10:30');
+    this.checkinHour.value   = ci.hour;
+    this.checkinMinute.value = ci.minute;
+    this.checkinPeriod.value = ci.period;
+    if (s.checkinEnabled) this.checkinToggle.classList.add('active');
+
+    const co = this.to12hr(s.checkoutTime || '19:00');
+    this.checkoutHour.value   = co.hour;
+    this.checkoutMinute.value = co.minute;
+    this.checkoutPeriod.value = co.period;
+    if (s.checkoutEnabled) this.checkoutToggle.classList.add('active');
   }
 
   async save() {
-    await chrome.storage.sync.set({
-      kekaUrl:     this.kekaUrlInput.value.trim(),
-      weekdaysOnly: this.weekdaysToggle.classList.contains('active'),
-      holidays:    this.holidaysArea.value.trim(),
-    });
+    const settings = {
+      kekaUrl:         this.kekaUrlInput.value.trim(),
+      weekdaysOnly:    this.weekdaysToggle.classList.contains('active'),
+      holidays:        this.holidaysArea.value.trim(),
+      checkinTime:     this.to24hr(this.checkinHour.value, this.checkinMinute.value, this.checkinPeriod.value),
+      checkoutTime:    this.to24hr(this.checkoutHour.value, this.checkoutMinute.value, this.checkoutPeriod.value),
+      checkinEnabled:  this.checkinToggle.classList.contains('active'),
+      checkoutEnabled: this.checkoutToggle.classList.contains('active'),
+    };
+    await chrome.storage.sync.set(settings);
+    await chrome.runtime.sendMessage({ action: 'updateSchedule', settings });
     this.flash('Saved!');
   }
 
@@ -115,6 +178,8 @@ class KeKoOptions {
   }
 
   bindEvents() {
+    this.checkinToggle.addEventListener('click', () => this.checkinToggle.classList.toggle('active'));
+    this.checkoutToggle.addEventListener('click', () => this.checkoutToggle.classList.toggle('active'));
     this.weekdaysToggle.addEventListener('click', () => this.weekdaysToggle.classList.toggle('active'));
     this.saveBtn.addEventListener('click', () => this.save());
     document.getElementById('refreshLogs').addEventListener('click', () => this.loadLogs());

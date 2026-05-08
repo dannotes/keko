@@ -241,13 +241,29 @@ class KeKoBackground {
 //
 function kekaAction(actionType, attempt) {
   return new Promise(resolve => {
-    setTimeout(async () => {
-      try {
-        const component = document.querySelector('employee-attendance-request-actions');
-        if (!component) {
-          resolve({ success: false, error: `Angular component not found (attempt ${attempt})` });
-          return;
+    // Poll for the Angular component to appear (up to 20s) before acting
+    const maxWait = 20000;
+    const pollInterval = 500;
+    let waited = 0;
+
+    const waitForComponent = setInterval(() => {
+      waited += pollInterval;
+      const component = document.querySelector('employee-attendance-request-actions');
+
+      if (!component) {
+        if (waited >= maxWait) {
+          clearInterval(waitForComponent);
+          resolve({ success: false, error: `Angular component not found after ${maxWait / 1000}s (attempt ${attempt})` });
         }
+        return;
+      }
+
+      clearInterval(waitForComponent);
+      run(component);
+    }, pollInterval);
+
+    async function run(component) {
+      try {
 
         // ── Detect current state ───────────────────────────────────────────
         const clockOutBtn = component.querySelector('button.btn-danger');
@@ -349,7 +365,7 @@ function kekaAction(actionType, attempt) {
       } catch (err) {
         resolve({ success: false, error: err.message });
       }
-    }, 1500);
+    }
   });
 }
 

@@ -29,7 +29,7 @@ class KeKoPopup {
       this.elements.checkinHour.appendChild(opt(h));
       this.elements.checkoutHour.appendChild(opt(h));
     }
-    for (let m = 0; m < 60; m += 5) {
+    for (let m = 0; m < 60; m++) {
       const opt = v => { const o = document.createElement('option'); o.value = o.textContent = String(v).padStart(2, '0'); return o; };
       this.elements.checkinMinute.appendChild(opt(m));
       this.elements.checkoutMinute.appendChild(opt(m));
