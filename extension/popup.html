@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 340px;
+      padding: 16px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(160deg, #0f1e2b 0%, #0b151d 100%);
+      color: #e2e8eb;
+    }
+
+    .header { text-align: center; margin-bottom: 14px; }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: 2px; }
+    .logo span { color: #b399ff; }
+    .subtitle { font-size: 11px; color: #a3b5c2; margin-top: 2px; }
+
+    .status {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #143752;
+      margin-bottom: 14px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .status.checked-in  { background: rgba(87,70,175,0.25); border-color: #5746af; }
+    .status.checked-out { background: rgba(250,95,95,0.15); border-color: #fa5f5f; }
+    #lastAction { font-size: 11px; color: #a3b5c2; margin-top: 4px; }
+
+    .section {
+      background: #0a1d2c;
+      border: 1px solid #143752;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .section h3 {
+      font-size: 11px;
+      color: #a3b5c2;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .time-row { display: flex; align-items: center; justify-content: space-between; }
+    .time-controls { display: flex; align-items: center; gap: 4px; }
+    select {
+      padding: 6px 8px;
+      border: 1px solid #143752;
+      border-radius: 6px;
+      background: #0f1e2b;
+      color: #e2e8eb;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    select:focus { border-color: #5746af; }
+    .sep { font-weight: bold; font-size: 15px; color: #a3b5c2; }
+
+    .toggle {
+      position: relative;
+      width: 48px; height: 26px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 26px;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .toggle.active { background: #5746af; }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 22px; height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .toggle.active::after { transform: translateX(22px); }
+
+    .actions { display: flex; gap: 10px; margin-bottom: 10px; }
+    .btn {
+      flex: 1; padding: 12px; border: none; border-radius: 10px;
+      cursor: pointer; font-weight: 700; font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-checkin  { background: linear-gradient(135deg, #5746af, #3d2f8f); color: white; }
+    .btn-checkout { background: linear-gradient(135deg, #fa5f5f, #c93030); color: white; }
+
+    .footer { text-align: center; font-size: 11px; color: #a3b5c2; }
+    .footer a { color: #b399ff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Ke<span>Ko</span></div>
+    <div class="subtitle">Keka Attendance Automation</div>
+  </div>
+
+  <div class="status" id="status">
+    <div id="statusText">Status: Unknown</div>
+    <div id="lastAction"></div>
+  </div>
+
+  <div class="section">
+    <h3>Clock-in Time</h3>
+    <div class="time-row">
+      <div class="time-controls">
+        <select id="checkinHour"></select>
+        <span class="sep">:</span>
+        <select id="checkinMinute"></select>
+        <select id="checkinPeriod">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+      <div class="toggle" id="checkinToggle"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Clock-out Time</h3>
+    <div class="time-row">
+      <div class="time-controls">
+        <select id="checkoutHour"></select>
+        <span class="sep">:</span>
+        <select id="checkoutMinute"></select>
+        <select id="checkoutPeriod">
+          <option value="AM">AM</option>
+          <option value="PM" selected>PM</option>
+        </select>
+      </div>
+      <div class="toggle" id="checkoutToggle"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-checkin" id="manualCheckin">Clock In</button>
+    <button class="btn btn-checkout" id="manualCheckout">Clock Out</button>
+  </div>
+
+  <div class="footer">
+    <a href="#" id="settingsLink">Advanced Settings</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

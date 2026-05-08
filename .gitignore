@@ -1,0 +1,7 @@
+node_modules/
+.playwright-mcp/
+.claude/
+*.png
+!extension/icons/*.png
+keka-*.json
+package-lock.json

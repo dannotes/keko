@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KeKo — Advanced Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 520px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0b151d;
+      color: #e2e8eb;
+    }
+    h1 { font-size: 20px; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; }
+    h1 span { color: #b399ff; }
+    .subtitle { font-size: 11px; color: #a3b5c2; margin-bottom: 20px; }
+
+    .section {
+      background: #0a1d2c;
+      border: 1px solid #143752;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .section h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #a3b5c2;
+      margin-bottom: 12px;
+    }
+
+    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+    label { font-size: 13px; }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #0f1e2b;
+      border: 1px solid #143752;
+      border-radius: 6px;
+      color: #e2e8eb;
+      font-size: 12px;
+      padding: 8px 10px;
+      outline: none;
+      font-family: monospace;
+    }
+    input[type="text"] { height: 36px; font-family: inherit; }
+    input[type="text"]:focus, textarea:focus { border-color: #5746af; }
+    textarea { height: 100px; resize: vertical; }
+    textarea::placeholder, input::placeholder { color: #a3b5c2; opacity: 0.6; }
+
+    .hint { font-size: 11px; color: #a3b5c2; margin-top: 6px; }
+
+    .toggle {
+      position: relative; width: 48px; height: 26px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 26px; cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+    }
+    .toggle.active { background: #5746af; }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 22px; height: 22px; background: white; border-radius: 50%;
+      transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .toggle.active::after { transform: translateX(22px); }
+
+    .log-box {
+      height: 180px; overflow-y: auto;
+      background: #060e14;
+      border: 1px solid #143752;
+      border-radius: 6px;
+      padding: 8px; font-family: monospace; font-size: 11px;
+      scrollbar-width: thin;
+      scrollbar-color: #143752 transparent;
+    }
+    .log-box::-webkit-scrollbar { width: 5px; }
+    .log-box::-webkit-scrollbar-track { background: transparent; }
+    .log-box::-webkit-scrollbar-thumb { background: #143752; border-radius: 4px; }
+    .log-box::-webkit-scrollbar-thumb:hover { background: #5746af; }
+    .log-entry { margin-bottom: 4px; line-height: 1.4; color: #e2e8eb; }
+    .log-entry.error { color: #fa5f5f; }
+    .log-entry.success { color: #b399ff; }
+    .log-entry .ts { color: #a3b5c2; margin-right: 6px; }
+
+    .btn-row { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      padding: 9px 16px; border: none; border-radius: 8px;
+      cursor: pointer; font-size: 13px; font-weight: 600;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary  { background: #5746af; color: white; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: #e2e8eb; border: 1px solid #143752; }
+    .btn-danger   { background: #fa5f5f; color: white; }
+
+    #saveStatus { font-size: 12px; color: #b399ff; opacity: 0; transition: opacity 0.4s; }
+    #saveStatus.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Ke<span>Ko</span></h1>
+  <div class="subtitle">Advanced Settings — Keka Attendance Automation</div>
+
+  <div class="section">
+    <h2>Keka Instance</h2>
+    <div style="margin-bottom:8px;">
+      <label style="font-size:12px;color:#a3b5c2;display:block;margin-bottom:4px;">Your Keka subdomain URL</label>
+      <input type="text" id="kekaUrl" placeholder="eg: https://companyname.keka.com/#/me/attendance/logs" />
+    </div>
+    <div class="hint">Enter your company's Keka attendance URL. Required before automation will work.</div>
+  </div>
+
+  <div class="section">
+    <h2>Schedule Options</h2>
+    <div class="row">
+      <label>Weekdays only (skip Sat &amp; Sun)</label>
+      <div class="toggle" id="weekdaysToggle"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Holiday Dates</h2>
+    <textarea id="holidays" placeholder="2026-01-26&#10;2026-08-15&#10;2026-10-02"></textarea>
+    <div class="hint">One date per line in YYYY-MM-DD format. Clock-in/out will be skipped on these dates.</div>
+  </div>
+
+  <div class="section">
+    <h2>Debug Logs</h2>
+    <div class="log-box" id="logBox"></div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-secondary" id="refreshLogs">Refresh</button>
+      <button class="btn btn-secondary" id="exportLogs">Export Logs</button>
+      <button class="btn btn-danger" id="clearLogs">Clear Logs</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Diagnostics</h2>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="viewAlarms">View Active Alarms</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Data Management</h2>
+    <div class="btn-row" style="flex-wrap:wrap;gap:8px;">
+      <button class="btn btn-secondary" id="exportSettings">Export Settings</button>
+      <button class="btn btn-secondary" id="importSettings">Import Settings</button>
+      <button class="btn btn-danger" id="clearAllData">Clear All Data</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="saveBtn">Save Settings</button>
+    <span id="saveStatus">Saved!</span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
