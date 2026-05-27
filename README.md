@@ -53,11 +53,6 @@ Clock-in is a single click. Clock-out is a 3-step flow: trigger → in-page conf
 | `storage` | Save schedule settings and logs |
 | `alarms` | Daily scheduled triggers |
 | `tabs` | Open and close the Keka tab |
-| `scripting` | Inject the click script into the Keka page |
-| `notifications` | Success/failure desktop alerts |
-| `activeTab` | Access the open Keka tab |
-
-Host permission is scoped to `https://easternenterprise.keka.com/*` only.
 
 ## Project structure
 
